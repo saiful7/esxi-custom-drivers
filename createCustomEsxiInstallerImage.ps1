@@ -7,9 +7,10 @@
 #                                         /____/                                           
 ##############################################################################################
 # Author: Jonas Werner
-# GitHub URL: https://github.com/jonas-werner/custom-esxi-iso-with-network-drivers
-# Video: https://youtu.be/DbqZI1V6TK4
-# Version: 0.7
+# Modified By: SAiful Islam Rokon Akon
+# GitHub URL: https://github.com/saiful7/esxi-custom-drivers
+# Video from the Author: https://youtu.be/DbqZI1V6TK4
+# Version: 0.7.1
 ##############################################################################
 # Prerequisites
 # Only needs to be executed once, not every time an image is built
@@ -31,53 +32,58 @@ Add-EsxSoftwareDepot https://hostupdate.vmware.com/software/VUM/PRODUCTION/main/
 #Get-EsxImageProfile
 
 # Download desired image
-Export-ESXImageProfile -ImageProfile "ESXi-7.0.1-16850804-standard" -ExportToBundle -filepath ESXi-7.0.1-16850804-standard.zip
+Export-ESXImageProfile -ImageProfile "ESXi-6.7.0-8169922-standard" -ExportToBundle -filepath ESXi-6.7.0-8169922-standard.zip
 
 # Remove the depot
 Remove-EsxSoftwareDepot https://hostupdate.vmware.com/software/VUM/PRODUCTION/main/vmw-depot-index.xml
 
 # Add default ESXi image files to installation media
-Add-EsxSoftwareDepot .\ESXi-7.0.1-16850804-standard.zip
+Add-EsxSoftwareDepot .\ESXi-6.7.0-8169922-standard.zip
 
 
 ##############################################################################
 # Download additional drivers (can be done via browser too, either is fine) 
 ##############################################################################
 
-# Get community network driver 
-Invoke-WebRequest -Uri https://download3.vmware.com/software/vmw-tools/community-network-driver/Net-Community-Driver_1.2.0.0-1vmw.700.1.0.15843807_18028830.zip -OutFile Net-Community-Driver_1.2.0.0-1vmw.700.1.0.15843807_18028830.zip
+# Get Realtek RTL8111/8168/8411 network driver 
+Invoke-WebRequest -Uri http://vibsdepot.v-front.de/depot/bundles/net55-r8168-8.045a-napi-offline_bundle.zip -OutFile esxi-net55-r8168-8.045a-napi-offline_bundle.zip
 
-# Get USB NIC driver
-Invoke-WebRequest -Uri https://download3.vmware.com/software/vmw-tools/USBNND/ESXi701-VMKUSB-NIC-FLING-40599856-component-17078334.zip -OutFile ESXi701-VMKUSB-NIC-FLING-40599856-component-17078334.zip
+# Get Realtek RTL8169 network driver 
+Invoke-WebRequest -Uri https://vibsdepot.v-front.de/depot/bundles/net51-r8169-6.011.00-2vft.510.0.0.799733-offline_bundle.zip -OutFile esxi-net51-r8169-6.011.00-2vft.510.0.0.799733-offline_bundle.zip
 
 ##############################################################################
 # Add the additional drivers
 ##############################################################################
 
-# Add community network driver
-Add-EsxSoftwareDepot .\Net-Community-Driver_1.2.0.0-1vmw.700.1.0.15843807_18028830.zip
+#  Get Realtek RTL8111/8168/8411 network driver
+Add-EsxSoftwareDepot .\esxi-net55-r8168-8.045a-napi-offline_bundle.zip
 
-# Add USB NIC driver
-Add-EsxSoftwareDepot .\ESXi701-VMKUSB-NIC-FLING-40599856-component-17078334.zip
-
+# Get  Realtek RTL8169 network driver 
+Add-EsxSoftwareDepot .\esxi-net51-r8169-6.011.00-2vft.510.0.0.799733-offline_bundle.zip
 
 ##############################################################################
 # Create new installation media profile and add the additional drivers to it
 ##############################################################################
 
 # Create new, custom profile
-New-EsxImageProfile -CloneProfile "ESXi-7.0.1-16850804-standard" -name "ESXi-7.0.1-16850804-standard-ASRock" -Vendor "jonamiki.com"
+New-EsxImageProfile -CloneProfile "ESXi-6.7.0-8169922-standard" -name "ESXi-6.7.0-8169922-standard-SAASGLOBAL.NET" -Vendor "saasglobal.net"
+
+#############
+Set-EsxImageProfile -Name ESXi-6.7.0-8169922-standard-SAASGLOBAL.NET -AcceptanceLevel CommunitySupported 
+#############
 
 # Optionally remove existing driver package (example for ne1000)
-#Remove-EsxSoftwarePackage -ImageProfile "ESXi-7.0.1-16850804-standard-ASRock" -SoftwarePackage "ne1000"
+#Remove-EsxSoftwarePackage -ImageProfile "ESXi-6.7.0-8169922-standard-SAASGLOBAL.NET" -SoftwarePackage "ne1000"
 
-# Add community network driver package to custom profile
-Add-EsxSoftwarePackage -ImageProfile "ESXi-7.0.1-16850804-standard-ASRock" -SoftwarePackage "net-community"
+# Add Realtek RTL8111/8168/8411 network driver
+Add-EsxSoftwarePackage -ImageProfile "ESXi-6.7.0-8169922-standard-SAASGLOBAL.NET" -SoftwarePackage "net55-r8168"
 
-# Add USB NIC driver package to custom profile
-Add-EsxSoftwarePackage -ImageProfile "ESXi-7.0.1-16850804-standard-ASRock" -SoftwarePackage "vmkusb-nic-fling"
+# Add  Realtek RTL8169 network driver
+Add-EsxSoftwarePackage -ImageProfile "ESXi-6.7.0-8169922-standard-SAASGLOBAL.NET" -SoftwarePackage "net51-r8169"
 
 ##############################################################################
 # Export the custom profile to ISO
 ##############################################################################
-Export-ESXImageProfile -ImageProfile "ESXi-7.0.1-16850804-standard-ASRock" -ExportToIso -filepath ESXi-7.0.1-16850804-standard-ASRock.iso
+Export-ESXImageProfile -ImageProfile "ESXi-6.7.0-8169922-standard-SAASGLOBAL.NET" -ExportToIso -filepath ESXi-6.7.0-8169922-standard-SAASGLOBAL.NET.iso
+
+## saasglobal.net
